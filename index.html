@@ -758,20 +758,22 @@ function proceedSave() {
 }
 
 async function saveToWord(skipValidation = false) {
+  // Read fields once at the top
+  const date = document.getElementById('meta_date').value;
+  const semester = document.getElementById('meta_semester').value;
+  const tutor = document.getElementById('meta_tutor').value;
+
   if (!skipValidation) {
     // Collect missing fields
     const missing = [];
-    const date = document.getElementById('meta_date').value;
-    const semester = document.getElementById('meta_semester').value;
-    const tutor = document.getElementById('meta_tutor').value;
     if (!date) missing.push('תאריך');
     if (!semester) missing.push('סמסטר');
     if (!tutor) missing.push('שם המנחה');
     const unrated = [];
     for (let i = 1; i <= 9; i++) {
-      if (!ratings[i]) unrated.push(`קריטריון ${i}`);
+      if (!ratings[i]) unrated.push(i);
     }
-    if (unrated.length > 0) missing.push(`${unrated.length} קריטריון/ים לא דורגו (${unrated.join('، ')})`);
+    if (unrated.length > 0) missing.push(`${unrated.length} קריטריון/ים לא דורגו (${unrated.map(n=>'קריטריון '+n).join(', ')})`);
     if (missing.length > 0) {
       const body = document.getElementById('modalBody');
       body.innerHTML = '<p>הטופס אינו מלא לחלוטין. הפריטים הבאים עדיין חסרים:</p><ul>' +
@@ -781,9 +783,6 @@ async function saveToWord(skipValidation = false) {
       return;
     }
   }
-  const date = document.getElementById('meta_date').value;
-  const semester = document.getElementById('meta_semester').value;
-  const tutor = document.getElementById('meta_tutor').value;
   const strengths = document.getElementById('comment_strengths').value;
   const improvements = document.getElementById('comment_improvements').value;
   const other = document.getElementById('comment_other').value;
