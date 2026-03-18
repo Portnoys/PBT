@@ -23189,7 +23189,7 @@ var __async = (__this, __arguments, generator) => {
       </div>
       <div>
         <div class="card-title">הערות</div>
-        <div class="card-subtitle">הרגישי חופשייה למלא הערות בנוגע להיבטים השונים</div>
+        <div class="card-subtitle">יש לציין בהמשך הערות בנוגע להיבטים השונים של תפקוד המנחה.</div>
       </div>
     </div>
     <div class="comments-grid">
@@ -23208,7 +23208,7 @@ var __async = (__this, __arguments, generator) => {
     </div>
     <div class="divider"></div>
     <div class="footer-note">
-      אנא החזירי את ההערכה הסופית באמצעות נציגת הסטודנטיות לרכזות הקורס
+      לפני סגירת הלינק, יש להוריד את הקובץ המלא ולהביאו למפגש המשוב.
     </div>
   </div>
 
@@ -23247,7 +23247,7 @@ const CRITERIA = [
   "מראה עניין והנאה מתפקידה",
   "מאפשרת מידה סבירה של אוטונומיה לסטודנטים באשר למטרות הלימוד, אסטרטגיות ומקורות",
   "מתקשרת בבהירות עם הסטודנטים",
-  "תורמת להתפתחות יכולות הסטודנטים ברכישה, יישום ועיבוד ידע (לדוגמא, קידום חשיבה קלינית וטפול על בסיס ראיות מחקריות)",
+  "תורמת להתפתחות יכולות הסטודנטים ברכישה, יישום ועיבוד ידע (לדוגמא, קידום חשיבה מקצועית וטיפול על בסיס ראיות מחקריות)",
   "באופן כללי: מה דעתך על המנחה כמקדמת למידה?"
 ];
 
@@ -23459,9 +23459,24 @@ async function saveToWord(skipValidation = false) {
       b.download = `הערכת_מנחה${name}_data.json`;
       document.body.appendChild(b); b.click(); document.body.removeChild(b);
     }, 500);
-    showToast('✓ הקובץ נשמר בהצלחה!');
+
+    // Save to Google Sheets
+    showToast('שומר לגוגל שיט...');
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbzbYz5tc4vyZoCtzfhYV9yOq-ZMV0GGe63EjrIxXH4wRi99QF2rcBMZjSSNzelZ2kojJQ/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ meta:{date,semester,tutor}, ratings:{...ratings}, comments:{strengths,improvements,other} })
+      });
+      showToast('✓ נשמר בהצלחה — Word + גוגל שיט!');
+    } catch(sheetErr) {
+      console.warn('Google Sheets error:', sheetErr);
+      showToast('✓ Word נשמר · גוגל שיט נכשל', 'error');
+    }
+
   } catch(e) {
-    console.error(e); showToast('שגיאה בשמירה', 'error');
+    console.error(e); showToast('שגיאה בשמירה: ' + e.message, 'error');
   }
 }
 
