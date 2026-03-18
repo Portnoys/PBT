@@ -23407,12 +23407,14 @@ async function saveToWord() {
   const borders = { top: bd, bottom: bd, left: bd, right: bd };
 
   const heading = (text, color="2A5070") => new Paragraph({
+    bidirectional: true,
     children: [new TextRun({ text, bold: true, size: 28, font: "Arial", color })],
     spacing: { before: 280, after: 100 },
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "5B9AA8", space: 4 } }
   });
 
   const field = (label, value) => new Paragraph({
+    bidirectional: true,
     children: [
       new TextRun({ text: `${label}: `, bold: true, size: 22, font: "Arial" }),
       new TextRun({ text: value || '_______________', size: 22, font: "Arial" })
@@ -23437,41 +23439,41 @@ async function saveToWord() {
     return new TableRow({ children: [
       new TableCell({ borders, width: { size: 1200, type: WidthType.DXA },
         shading: { fill: "EAF2F8", type: ShadingType.CLEAR }, margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: score, bold: true, size: 24, font: "Arial", color: score==='—'?'999999':'2A5070' })] })] }),
+        children: [new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: score, bold: true, size: 24, font: "Arial", color: score==='—'?'999999':'2A5070' })] })] }),
       new TableCell({ borders, width: { size: 7960, type: WidthType.DXA },
         margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        children: [new Paragraph({ children: [new TextRun({ text: `${num}. ${text}`, size: 22, font: "Arial" })] })] })
+        children: [new Paragraph({ bidirectional: true, children: [new TextRun({ text: `${num}. ${text}`, size: 22, font: "Arial" })] })] })
     ]});
   });
 
   const makeComment = (label, val) => [
-    new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 22, font: "Arial" })], spacing: { before: 140, after: 60 } }),
-    new Paragraph({ children: [new TextRun({ text: val || '(לא מולא)', size: 22, font: "Arial", color: val?'2C3E50':'999999', italics: !val })], spacing: { after: 80 } })
+    new Paragraph({ bidirectional: true, children: [new TextRun({ text: label, bold: true, size: 22, font: "Arial" })], spacing: { before: 140, after: 60 } }),
+    new Paragraph({ bidirectional: true, children: [new TextRun({ text: val || '(לא מולא)', size: 22, font: "Arial", color: val?'2C3E50':'999999', italics: !val })], spacing: { after: 80 } })
   ];
 
   const doc = new Document({
     sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } }, children: [
-      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "החוג לריפוי בעיסוק", size: 22, font: "Arial", color: "5B9AA8" })], spacing: { after: 40 } }),
-      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "אוניברסיטת תל אביב", size: 22, font: "Arial", color: "5B9AA8" })], spacing: { after: 40 } }),
-      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "הערכת ביצועי המנחה", bold: true, size: 38, font: "Arial", color: "2A5070" })], spacing: { before: 40, after: 280 } }),
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "החוג לריפוי בעיסוק", size: 22, font: "Arial", color: "5B9AA8" })], spacing: { after: 40 } }),
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "אוניברסיטת תל אביב", size: 22, font: "Arial", color: "5B9AA8" })], spacing: { after: 40 } }),
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "הערכת ביצועי המנחה", bold: true, size: 38, font: "Arial", color: "2A5070" })], spacing: { before: 40, after: 280 } }),
       heading("פרטי ההערכה"),
       field("תאריך", date), field("סמסטר", semester), field("שם המנחה", tutor),
-      new Paragraph({ spacing: { after: 100 } }),
+      new Paragraph({ bidirectional: true, spacing: { after: 100 } }),
       heading("קריטריוני הערכה"),
-      new Paragraph({ children: [new TextRun({ text: "10 = מצוין  |  1 = דל מאד", size: 20, font: "Arial", color: "7F8C9A", italics: true })], spacing: { after: 140 } }),
+      new Paragraph({ bidirectional: true, children: [new TextRun({ text: "10 = מצוין  |  1 = דל מאד", size: 20, font: "Arial", color: "7F8C9A", italics: true })], spacing: { after: 140 } }),
       new Table({ width: { size: 9160, type: WidthType.DXA }, columnWidths: [1200, 7960], rows: [headerRow, ...criteriaRows] }),
-      new Paragraph({ spacing: { after: 100 } }),
+      new Paragraph({ bidirectional: true, spacing: { after: 100 } }),
       ...(ratedCount > 0 ? [new Paragraph({ children: [
         new TextRun({ text: "ציון ממוצע: ", bold: true, size: 24, font: "Arial" }),
         new TextRun({ text: `${avg} / 10`, bold: true, size: 24, font: "Arial", color: "4A7C9E" }),
         new TextRun({ text: `  (${ratedCount} קריטריונים מולאו)`, size: 20, font: "Arial", color: "7F8C9A" })
-      ], spacing: { before: 140, after: 200 } })] : []),
+      ], bidirectional: true, spacing: { before: 140, after: 200 } })] : []),
       heading("הערות"),
       ...makeComment("1. עוצמות", strengths),
       ...makeComment("2. תחומים הדורשים תשומת לב", improvements),
       ...makeComment("3. הערות נוספות", other),
-      new Paragraph({ spacing: { after: 280 } }),
-      new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "אנא החזירי את ההערכה הסופית באמצעות נציגת הסטודנטיות לרכזות הקורס", size: 20, font: "Arial", color: "7F8C9A", italics: true })] })
+      new Paragraph({ bidirectional: true, spacing: { after: 280 } }),
+      new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER, children: [new TextRun({ text: "אנא החזירי את ההערכה הסופית באמצעות נציגת הסטודנטיות לרכזות הקורס", size: 20, font: "Arial", color: "7F8C9A", italics: true })] })
     ]}]
   });
 
@@ -23494,16 +23496,17 @@ async function saveToWord() {
     // Save to Google Sheets
     showToast('שומר לגוגל שיט...');
     try {
+      const payload = JSON.stringify({
+        meta: {date, semester, tutor},
+        ratings: {...ratings},
+        comments: {strengths, improvements, other},
+        notifyEmail: 'portnoys@tauex.tau.ac.il'
+      });
+      // POST with no-cors (opaque response – can't read reply but data arrives)
       await fetch('https://script.google.com/macros/s/AKfycbzbYz5tc4vyZoCtzfhYV9yOq-ZMV0GGe63EjrIxXH4wRi99QF2rcBMZjSSNzelZ2kojJQ/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          meta: {date, semester, tutor},
-          ratings: {...ratings},
-          comments: {strengths, improvements, other},
-          notifyEmail: 'portnoys@tauex.tau.ac.il'
-        })
+        body: payload
       });
       showToast('✓ נשמר בהצלחה — Word + גוגל שיט!');
     } catch(sheetErr) {
