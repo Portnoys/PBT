@@ -23081,6 +23081,22 @@ var __async = (__this, __arguments, generator) => {
 </head>
 <body>
 
+<!-- מסך כניסה - הזנת תעודת זהות לפני הגישה לשאלון -->
+<div id="screenEntry" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:linear-gradient(135deg,#1a3a52 0%,#2a5070 60%,#1e6e6e 100%);">
+  <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3);direction:rtl;">
+    <h2 style="font-family:'Heebo',sans-serif;font-size:24px;font-weight:700;color:#2a5070;margin:0 0 10px;">הערכת ביצועי המנחה</h2>
+    <p style="font-family:'Assistant',sans-serif;font-size:15px;color:#6b8a9e;margin:0 0 26px;">לפני מילוי המשוב, נא הזן/י את מספר תעודת הזהות שלך</p>
+    <input class="field-input" type="text" id="entry_studentId" placeholder="מספר תעודת זהות (5–9 ספרות)" inputmode="numeric" maxlength="9" style="text-align:center; font-size:18px; width:100%; box-sizing:border-box; margin-bottom:6px;">
+    <p id="entry_error" style="color:#c0533a; font-size:13px; min-height:18px; margin:4px 0 18px;"></p>
+    <p style="font-size:12px; color:#8aabb8; line-height:1.6; margin-bottom:26px;">
+      המספר משמש <b>אך ורק</b> כדי למנוע הגשה כפולה של אותה סטודנטית. הוא מוצפן בדפדפן שלך <b>לפני</b> שהוא נשלח, ולעולם אינו נשמר או נשלח כטקסט גלוי — לא ניתן לשחזר ממנו מי הגישה את המשוב.
+    </p>
+    <button class="btn btn-warm" onclick="enterForm()" style="width:100%; justify-content:center;">המשך למשוב</button>
+  </div>
+</div>
+
+<!-- מסך השאלון עצמו - מוצג רק אחרי הזנת ת.ז תקינה במסך הכניסה -->
+<div id="screenForm" style="display:none;">
 <header class="page-header">
   <div class="header-content" style="display:flex; align-items:center; justify-content:space-between; padding: 18px 32px;">
     <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
@@ -23104,7 +23120,7 @@ var __async = (__this, __arguments, generator) => {
 </svg>
     <div style="text-align:right; flex:1; padding-right:24px;">
       <h1>הערכת ביצועי המנחה</h1>
-      <p>החוג לריפוי בעיסוק באוניברסיטת תל אביב</p>
+      <p>החוג לריפוי בעיסוק · אוניברסיטת תל אביב</p>
     </div>
   </div>
 </header>
@@ -23151,14 +23167,7 @@ var __async = (__this, __arguments, generator) => {
         <label class="field-label">שם המנחה</label>
         <input class="field-input" type="text" id="meta_tutor" placeholder="שם מלא">
       </div>
-      <div class="field-group">
-        <label class="field-label">מספר תעודת זהות</label>
-        <input class="field-input" type="text" id="meta_studentId" placeholder="9 ספרות" inputmode="numeric" maxlength="9">
-      </div>
     </div>
-    <p style="font-size:13px; color:#7F8C9A; margin-top:10px; line-height:1.5;">
-      מספר ת.ז. משמש <b>אך ורק</b> כדי למנוע הגשה כפולה של אותה סטודנטית. המספר מוצפן (hash) בדפדפן שלך <b>לפני</b> שהוא נשלח, ולעולם אינו נשמר או נשלח כטקסט גלוי — לא ניתן לשחזר ממנו מי הגישה את המשוב.
-    </p>
   </div>
 
   <!-- Scale -->
@@ -23266,6 +23275,7 @@ var __async = (__this, __arguments, generator) => {
   </div>
 
 </div>
+</div> <!-- /screenForm -->
 
 <!-- Validation Modal (strict – no bypass) -->
 <div class="modal-overlay" id="validationModal" style="display:none;">
@@ -23314,13 +23324,10 @@ var __async = (__this, __arguments, generator) => {
       <!-- פרטי שמירה נוספים -->
       <div id="savedDetails" style="font-family:'Assistant',sans-serif;font-size:14px;color:#7a9aaa;margin-bottom:32px;line-height:1.8;"></div>
 
-      <!-- כפתורים -->
+      <!-- כפתור -->
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
         <button onclick="resetForm()" style="background:linear-gradient(135deg,#2a5070,#3a7090);color:#fff;border:none;border-radius:10px;padding:13px 28px;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(42,80,112,.35);transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          מלא הערכה חדשה
-        </button>
-        <button onclick="closeSuccessOverlay()" style="background:#fff;color:#2a5070;border:2px solid #2a5070;border-radius:10px;padding:13px 28px;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
-          חזור לטופס
+          מלא הערכה חדשה (סטודנטית אחרת)
         </button>
       </div>
     </div>
@@ -23447,6 +23454,24 @@ function sha256Hex(message) {
 const STUDENT_ID_PEPPER = 'tau-ot-tutor-eval-2026';
 const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbYz5tc4vyZoCtzfhYV9yOq-ZMV0GGe63EjrIxXH4wRi99QF2rcBMZjSSNzelZ2kojJQ/exec';
 
+// The student ID lives ONLY in this variable, set once at the entry screen, and is never
+// re-editable from within the questionnaire or the finish screen.
+let currentStudentId = '';
+
+function enterForm() {
+  const input = document.getElementById('entry_studentId');
+  const raw = input.value.trim();
+  if (!/^\d{5,9}$/.test(raw)) {
+    document.getElementById('entry_error').textContent = 'נא להזין מספר תעודת זהות תקין (5–9 ספרות בלבד)';
+    input.classList.add('field-missing');
+    return;
+  }
+  currentStudentId = raw;
+  document.getElementById('screenEntry').style.display = 'none';
+  document.getElementById('screenForm').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -23462,22 +23487,21 @@ function showSuccessPage(fileName, tutorName, dateSaved, sheetOk) {
   if (dateSaved) rows.push(`<span style="color:#2a5070;font-weight:700;">תאריך:</span> ${dateSaved}`);
   rows.push(`<span style="color:#2a5070;font-weight:700;">גוגל שיט:</span> ${sheetOk ? '✓ נשמר בהצלחה' : '⚠ לא נשמר (נסה שוב מאוחר יותר)'}`);
   details.innerHTML = rows.join('<br>');
+  // Hide the questionnaire entirely — there is intentionally no way back to editing from here.
+  document.getElementById('screenForm').style.display = 'none';
   document.getElementById('successOverlay').style.display = 'block';
   window.scrollTo(0,0);
 }
 
-function closeSuccessOverlay() {
-  document.getElementById('successOverlay').style.display = 'none';
-}
-
+// Reloading the page is the only way out of the finish screen: it guarantees a fully clean
+// slate (student ID, ratings, comments, everything) with no leftover state, and sends the
+// next person back to the entry screen to enter their own ID.
 function resetForm() {
-  closeSuccessOverlay();
-  clearForm();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  location.reload();
 }
 
 function clearForm() {
-  if (!confirm('האם לנקות את כל הנתונים?')) return;
+  if (!confirm('האם לנקות את כל הנתונים שמולאו בטופס? (תעודת הזהות שהוזנה בכניסה תישאר ללא שינוי)')) return;
   Object.keys(ratings).forEach(k => delete ratings[k]);
   ['meta_date','meta_semester','meta_tutor','comment_strengths','comment_improvements','comment_other']
     .forEach(id => document.getElementById(id).value = '');
@@ -23497,6 +23521,15 @@ function closeModal() {
 }
 
 async function saveToWord() {
+  // Safety net: the student ID must already have been set at the entry screen.
+  // This should never trigger in normal use since screenForm is only reachable via enterForm(),
+  // but guards against any edge case (e.g. page state tampering) rather than silently submitting
+  // a submission with an empty ID.
+  if (!/^\d{5,9}$/.test(currentStudentId)) {
+    showToast('שגיאה: לא זוהתה תעודת זהות תקינה. נא לרענן את העמוד ולהתחיל מחדש.', 'error');
+    return;
+  }
+
   // Read fields once at the top
   const date = document.getElementById('meta_date').value;
   const semester = document.getElementById('meta_semester').value;
@@ -23519,11 +23552,6 @@ async function saveToWord() {
   if (!tutor) {
     missing.push('שם המנחה');
     document.getElementById('meta_tutor').classList.add('field-missing');
-  }
-  const studentId = document.getElementById('meta_studentId').value.trim();
-  if (!/^\d{5,9}$/.test(studentId)) {
-    missing.push('מספר תעודת זהות (5–9 ספרות)');
-    document.getElementById('meta_studentId').classList.add('field-missing');
   }
   const unrated = [];
   for (let i = 1; i <= 9; i++) {
@@ -23644,7 +23672,7 @@ async function saveToWord() {
   // If the request never reaches the server, or the server hits an error, nothing is marked as used,
   // and the student can safely try again with the same ID.
   showToast('בודק ושומר את המשוב...');
-  const studentHash = sha256Hex(STUDENT_ID_PEPPER + studentId);
+  const studentHash = sha256Hex(STUDENT_ID_PEPPER + currentStudentId);
 
   let serverResult;
   try {
