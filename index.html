@@ -23086,12 +23086,12 @@ var __async = (__this, __arguments, generator) => {
   <div style="background:#fff;border-radius:20px;padding:44px 36px;max-width:440px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.3);direction:rtl;">
     <h2 style="font-family:'Heebo',sans-serif;font-size:24px;font-weight:700;color:#2a5070;margin:0 0 10px;">הערכת ביצועי המנחה</h2>
     <p style="font-family:'Assistant',sans-serif;font-size:15px;color:#6b8a9e;margin:0 0 26px;">לפני מילוי המשוב, נא הזן/י את מספר תעודת הזהות שלך</p>
-    <input class="field-input" type="text" id="entry_studentId" placeholder="מספר תעודת זהות (5–9 ספרות)" inputmode="numeric" maxlength="9" style="text-align:center; font-size:18px; width:100%; box-sizing:border-box; margin-bottom:6px;">
+    <input class="field-input" type="text" id="entry_studentId" placeholder="מספר תעודת זהות" inputmode="numeric" maxlength="9" style="text-align:center; font-size:18px; width:100%; box-sizing:border-box; margin-bottom:6px;">
     <p id="entry_error" style="color:#c0533a; font-size:13px; min-height:18px; margin:4px 0 18px;"></p>
     <p style="font-size:12px; color:#8aabb8; line-height:1.6; margin-bottom:26px;">
       המספר משמש <b>אך ורק</b> כדי למנוע הגשה כפולה של אותה סטודנטית. הוא מוצפן בדפדפן שלך <b>לפני</b> שהוא נשלח, ולעולם אינו נשמר או נשלח כטקסט גלוי — לא ניתן לשחזר ממנו מי הגישה את המשוב.
     </p>
-    <button class="btn btn-warm" onclick="enterForm()" style="width:100%; justify-content:center;">המשך למשוב</button>
+    <button class="btn btn-warm" id="entryBtn" onclick="enterForm()" style="width:100%; justify-content:center;">המשך למשוב</button>
   </div>
 </div>
 
@@ -23458,14 +23458,60 @@ const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbYz5tc4vyZo
 // re-editable from within the questionnaire or the finish screen.
 let currentStudentId = '';
 
-function enterForm() {
+// Read-only check against the server: has this student ID already been used for a
+// completed submission? This is a fast-fail convenience at the entry screen — the
+// authoritative, race-condition-safe block still happens server-side at final submission
+// (see saveToWord / the Apps Script doPost). If the check itself can't be reached (network
+// issue), we "fail open" here and let her into the questionnaire — she is never blocked by
+// a connectivity hiccup, only by an actual prior submission confirmed by the server.
+async function checkStudentIdUsed(hash) {
+  try {
+    const url = `${SHEETS_SCRIPT_URL}?action=check&hash=${encodeURIComponent(hash)}`;
+    const resp = await fetch(url, { method: 'GET' });
+    const data = JSON.parse(await resp.text());
+    return data.status; // 'used' | 'available' | 'error'
+  } catch (e) {
+    console.warn('Pre-check error (failing open):', e);
+    return 'unknown';
+  }
+}
+
+async function enterForm() {
   const input = document.getElementById('entry_studentId');
+  const errorEl = document.getElementById('entry_error');
+  const btn = document.getElementById('entryBtn');
+  errorEl.textContent = '';
+  input.classList.remove('field-missing');
+
   const raw = input.value.trim();
   if (!/^\d{5,9}$/.test(raw)) {
-    document.getElementById('entry_error').textContent = 'נא להזין מספר תעודת זהות תקין (5–9 ספרות בלבד)';
+    errorEl.textContent = 'נא להזין מספר תעודת זהות תקין (5–9 ספרות בלבד)';
     input.classList.add('field-missing');
     return;
   }
+
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'בודק...';
+
+  const hash = sha256Hex(STUDENT_ID_PEPPER + raw);
+  const state = await checkStudentIdUsed(hash);
+
+  btn.disabled = false;
+  btn.textContent = originalLabel;
+
+  if (state === 'used') {
+    errorEl.textContent = 'כבר קיימת הגשה שמורה עם תעודת זהות זו. אם לדעתך זו טעות, פני לרכזת הקורס.';
+    input.classList.add('field-missing');
+    return;
+  }
+  if (state === 'unknown') {
+    showToast('לא ניתן היה לבצע בדיקה מקדימה מול השרת (בעיית תקשורת) — ממשיכים, והבדיקה הסופית תתבצע בזמן ההגשה בפועל.', 'error');
+  }
+  if (state === 'error') {
+    showToast('אירעה שגיאה בבדיקה מול השרת — ממשיכים, והבדיקה הסופית תתבצע בזמן ההגשה בפועל.', 'error');
+  }
+
   currentStudentId = raw;
   document.getElementById('screenEntry').style.display = 'none';
   document.getElementById('screenForm').style.display = 'block';
